@@ -42,26 +42,26 @@ H_mesh.face=vertcat(H_mesh.epi,H_mesh.lv,H_mesh.rv);
  colorbar
  axis off
  
- H_mesh.triORTHO= load('D:\ARVC meshing automatic\patients\DTI003\DTI003_mesh\DTI003_coarse_tetrahedron_centreFibers.csv');
- H_mesh.triORTHO =H_mesh.triORTHO(:,1:3); 
- 
+ H_mesh.triORTHOfull= load('D:\ARVC meshing automatic\patients\DTI003\DTI003_mesh\DTI003_coarse_tetrahedron_centreFibers.csv');
+ H_mesh.triORTHO =H_mesh.triORTHOfull(:,1:3); 
+ %use the apex-base dir to define scar thickness
+ fibers_normal = H_mesh.triORTHOfull(:,7:9);
  %scar type 6 - 1 conducting channel with
 %     non uniform density borders oriented along fiber direction
-    for length=[3,10]
-        for width =3:9
+        for width =3
         for j=6
-            for density=6:10
+            for density=5
                 %for t=1:8
                   %  for r=1:8
                           k=0;
-                          width=12;
-                          length=4;
+                        %  width=12;
+                          length=10;
                         length=length/9;
-                        width=width/10;
+                        width=width/7;
                         
                        %  scar_properties ={};
 
-                x= cursor_info.Position(1); %RV post [x,y,z]=[-0.989, -9.9524,-9.94597]
+                x= cursor_info.Position(1); %RV post [x,y,z]=[-0.989, -9.9524,-9.4597]
                      y=    cursor_info.Position(2);
                      z= cursor_info.Position(3);
 
@@ -77,7 +77,8 @@ H_mesh.face=vertcat(H_mesh.epi,H_mesh.lv,H_mesh.rv);
          points = [mid1_id];
          for i=1:50
              [rw,col]=find(H_mesh.tri==mid1_id);
-             fiber_dir = -H_mesh.triORTHO(col(1),1:3);
+              fiber_dir = -H_mesh.triORTHOfull(col(1),1:3);%use the direction in the fiber dir
+            % fiber_dir = -fibers_normal(col(1),1:3);
              mid1 = mid1+fiber_dir*(length/3);
               id_next=knnsearch(H_mesh.xyz,mid1);
               points = [points,id_next];
@@ -117,7 +118,7 @@ H_mesh.face=vertcat(H_mesh.epi,H_mesh.lv,H_mesh.rv);
             dist_to_point_norm= dist_to_point/max(dist_to_point);
             
             
-            no_lge(points)=density/2;
+            no_lge(points)=density;
             % no_lge(points)=i*dist_to_point_norm;
             dummy=find(no_lge)<1;
             no_lge(dummy)=1;
@@ -129,39 +130,15 @@ H_mesh.face=vertcat(H_mesh.epi,H_mesh.lv,H_mesh.rv);
             dummy=find(no_lge)<1;
             no_lge(dummy)=1;       
             
-            
-%             for l=1:size(border_ids)
-%                 dummy=find(H_mesh.epi == border_ids(l));
-%                 if isempty(dummy)==0
-%                     no_lge(border_ids(l))=1;
-%                 end
-%             end
-
-             %no_lge(H_mesh.epi)=1;
-            
-%              for l=1:size(border_ids)
-%                 dummy=find(H_mesh.epi == border_ids(l));
-%                 if isempty(dummy)==0
-%                     no_lge(border_ids(l))=t*dist_to_point_norm(l);
-%                 end
-%             end
-%                for l=1:size(border_ids)
-%                 dummy=find(H_mesh.rv == border_ids(l));
-%                 if isempty(dummy)==0
-%                     no_lge(border_ids(l))=r*dist_to_point_norm(l);
-%                 end
-%             end
-%             dummy=find(no_lge)<1;
-%             no_lge(dummy)=1;
+         
 %             
-%             if k==1
-%                 no_lge(H_mesh.epi)=1;
-%             end
-%             light_lge(scar_ids)=4*dist_to_point_norm;
-%             dummy=find(light_lge)<1;
-%             light_lge(dummy)=1;
-%             
-%             
+ figure()
+ headlight
+ hold on
+ patch('vertices',H_mesh.xyz,'faces',H_mesh.face,'edgecolor','none','FaceVertexCData',no_lge,'facecolor','interp')
+ colorbar
+ axis off
+ view([-115 -56])
 %             
 %            % light_lge(border_ids)=20*i;
 % 
@@ -180,13 +157,12 @@ H_mesh.face=vertcat(H_mesh.epi,H_mesh.lv,H_mesh.rv);
         
            
            % dlmwrite(strcat(patient_sim_folder,'scalings\eikonal06_coarse_fib_',num2str(0),'.csv'), no_lge,'precision',10);
-            dlmwrite(strcat(patient_sim_folder,'scalings\eikonal06_coarse_fib_',num2str(0),'_scar_along_fiber_slowing_',num2str(density/2),'_length_',num2str(length),'_radius_',num2str(width),'.csv'), no_lge,'precision',10);
+          %  dlmwrite(strcat(patient_sim_folder,'scalings\eikonal06_coarse_fib_',num2str(0),'_scar_along_fiber_slowing_',num2str(density),'_length_',num2str(length),'_radius_',num2str(width),'.csv'), no_lge,'precision',10);
          %   dlmwrite(strcat(patient_sim_folder,'scalings\eikonal06_coarse_fib_',num2str(2),'_scar.csv'),  int_lge,'precision',10);
           %  dlmwrite(strcat(patient_sim_folder,'scalings\eikonal06_coarse_fib_',num2str(3),'_scar.csv'),  adv_lge,'precision',10);
            end
             end
         end
-    end
       %  end
        % end
         
@@ -197,6 +173,7 @@ H_mesh.face=vertcat(H_mesh.epi,H_mesh.lv,H_mesh.rv);
  patch('vertices',H_mesh.xyz,'faces',H_mesh.face,'edgecolor','none','FaceVertexCData',no_lge,'facecolor','interp')
  colorbar
  axis off
+ 
  
  
  
