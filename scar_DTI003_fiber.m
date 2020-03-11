@@ -240,7 +240,7 @@ thickness_scar=1;
                 x = -0.989;
                  y = -9.9524;
                  z = -9.4597;
-            else
+            elseif RV_mid ==1
                 x= cursor_info.Position(1); %RV post [x,y,z]=[-0.989, -9.9524,-9.4597]
                      y=    cursor_info.Position(2);
                      z= cursor_info.Position(3);
@@ -419,7 +419,136 @@ thickness_scar=1;
         end
       %  end
        % end
-        
+    
+       
+RV_mid=0;
+RV_posterior=0;
+RV_anterior=1;
+width=1;
+width_intersheet=1;
+thickness_scar=1;
+        for width_intersheet = [0.5,0.7,0.9]
+        for j=6
+            for density=5
+                %for t=1:8
+                  %  for r=1:8
+                          k=0;
+                        %  width=12;
+                          length=5;
+                        length=length/10;
+                        width=width/2;
+%                          if RV_anterior ==1
+% %                             thickness_scar = thickness_scar*10;
+% %                             width_intersheet=width_intersheet/5;
+%                                 width =0.7
+%                         end
+                       %  scar_properties ={};
+            if RV_posterior==1
+                x = -0.989;
+                 y = -9.9524;
+                 z = -9.4597;
+            elseif RV_mid ==1 
+                x= 1.6; %RV post [x,y,z]=[-0.989, -9.9524,-9.4597]
+                     y=    -11.6;
+                     z= -6.19;
+                     
+            elseif RV_anterior==1
+                x=-0.83;
+                y=-11.14;
+                z=-6.5;
+                
+                
+            end
+            
+             ts_scaling_no_fib=ones(23,1);
+
+               epi1= knnsearch(H_mesh.xyz(  H_mesh.epi,:),[x,y,z]);
+         endo1=knnsearch(H_mesh.xyz(H_mesh.rv,:),H_mesh.xyz(epi1,:));
+         
+         mid1= (H_mesh.xyz(H_mesh.epi(epi1),:)+H_mesh.xyz(H_mesh.rv(endo1),:))/2;
+         
+         mid1_id= knnsearch(H_mesh.xyz,mid1);
+         
+         points = [mid1_id];
+         
+             for i=1:50
+                 [rw,col]=find(H_mesh.tri==mid1_id);
+                  fiber_dir = -H_mesh.triORTHOfull(col(1),1:3);%use the direction in the fiber dir
+                  if RV_anterior ==1
+                      fiber_dir=-fiber_dir;
+                  end
+                % fiber_dir = -fibers_normal(col(1),1:3);
+                 mid1 = mid1+fiber_dir*(length/3);
+                  id_next=knnsearch(H_mesh.xyz,mid1);
+                  
+                  points = [points,id_next];
+                 dists= distance(H_mesh.xyz,mid1);
+                 keep=find(dists<length/3);
+                points = horzcat(points,keep');
+                points=unique(points);
+                %now for the same point, jump in the intersheet direction
+                %and collect the points
+                intersheet_dir = -H_mesh.triORTHOfull(id_next,7:9);
+                for j=1:thickness_scar
+                    dummy_id_next = id_next;
+                next_point_intersheet = H_mesh.xyz(dummy_id_next,:)+intersheet_dir*width_intersheet;
+                id_next_intersheet=knnsearch(H_mesh.xyz,next_point_intersheet);
+                dists_intersheet = distance(H_mesh.xyz,H_mesh.xyz( id_next_intersheet,:));
+                points_intersheet = find(dists_intersheet <width_intersheet);
+                points =  horzcat(points,points_intersheet');
+                points =unique(points);
+                
+                dummy_id_next = id_next_intersheet;
+                end
+                
+             end
+                  mid1_id=id_next;
+                  mid1= H_mesh.xyz(id_next,:);
+                  
+                %find if there are any points in the LV
+                indices_on_lv_surface=find(no_lge(H_mesh.lv) >1);
+                %transform mesh to align it with z dir vertically
+                
+                
+                              no_lge= ones(size(H_mesh.xyz,1),1);
+                     no_lge(points)=density;
+                     
+                if exist('delete_points')==1
+                 no_lge=points_cleaner(H_mesh,delete_points,no_lge);
+               end
+ figure()
+ headlight
+ hold on
+ patch('vertices',H_mesh.xyz,'faces',H_mesh.face,'edgecolor','none','FaceVertexCData',no_lge,'facecolor','interp')
+ colorbar
+ axis off
+ view([-115 -56])
+             
+            
+            no_lge(points)=density;
+            % no_lge(points)=i*dist_to_point_norm;
+            dummy=find(no_lge)<1;
+            no_lge(dummy)=1;
+            
+      
+            if RV_anterior==1
+               dlmwrite(strcat(patient_sim_folder,'scars_RV_anterior\scar_CV_slowing_factor',num2str(density),'_initial_length_','1','_growth_factor_',sprintf('%.1f',double(width)),'.csv'), no_lge,'precision',10);
+            elseif RV_mid==1
+                dlmwrite(strcat(patient_sim_folder,'scars_RV_mid\scar_CV_slowing_factor',num2str(density),'_initial_length_','1','_growth_factor_',sprintf('%.1f',double(width)),'.csv'), no_lge,'precision',10);
+               
+            elseif RV_posterior==1
+                dlmwrite(strcat(patient_sim_folder,'scars_RV_inferior\scar_CV_slowing_factor',num2str(density),'_initial_length_','1','_growth_factor_',sprintf('%.1f',double(width)),'.csv'), no_lge,'precision',10);
+            end
+           
+           % dlmwrite(strcat(patient_sim_folder,'scalings\eikonal06_coarse_fib_',num2str(0),'.csv'), no_lge,'precision',10);
+        %   dlmwrite(strcat(patient_sim_folder,'scars_RV_inferior\scar_CV_slowing_factor',num2str(density),'_initial_length_','1','_growth_factor_',sprintf('%.1f',double(width)),'.csv'), no_lge,'precision',10);
+         %   dlmwrite(strcat(patient_sim_folder,'scalings\eikonal06_coarse_fib_',num2str(2),'_scar.csv'),  int_lge,'precision',10);
+          %  dlmwrite(strcat(patient_sim_folder,'scalings\eikonal06_coarse_fib_',num2str(3),'_scar.csv'),  adv_lge,'precision',10);
+           end
+            end
+        end
+      %  end
+       % end       
         
  figure()
  headlight
