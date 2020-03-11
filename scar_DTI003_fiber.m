@@ -207,7 +207,7 @@ RV_posterior=0;
         
            
            % dlmwrite(strcat(patient_sim_folder,'scalings\eikonal06_coarse_fib_',num2str(0),'.csv'), no_lge,'precision',10);
-           dlmwrite(strcat(patient_sim_folder,'scars_RV_anterior\scar_CV_slowing_factor',num2str(density),'_initial_length_',num2str(length),'_growth_factor_',num2str(width),'.csv'), no_lge,'precision',10);
+           dlmwrite(strcat(patient_sim_folder,'scars_RV_anterior\scar_CV_slowing_factor',num2str(density),'_initial_length_',num2str(length),'_growth_factor_',num2str(double(width)),'.csv'), no_lge,'precision',10);
          %   dlmwrite(strcat(patient_sim_folder,'scalings\eikonal06_coarse_fib_',num2str(2),'_scar.csv'),  int_lge,'precision',10);
           %  dlmwrite(strcat(patient_sim_folder,'scalings\eikonal06_coarse_fib_',num2str(3),'_scar.csv'),  adv_lge,'precision',10);
            end
@@ -221,14 +221,17 @@ RV_posterior=0;
 RV_mid=0;
 RV_posterior=1;
 RV_anterior=0;
-        for width =[1,2,3]
+width=1;
+width_intersheet=1;
+thickness_scar=1;
+        for width_intersheet = [0.5,0.7]
         for j=6
             for density=5
                 %for t=1:8
                   %  for r=1:8
                           k=0;
                         %  width=12;
-                          length=10;
+                          length=5;
                         length=length/10;
                         width=width/2;
                         
@@ -262,12 +265,29 @@ RV_anterior=0;
                   id_next=knnsearch(H_mesh.xyz,mid1);
                   points = [points,id_next];
                  dists= distance(H_mesh.xyz,mid1);
-                 keep=find(dists<width);
+                 keep=find(dists<length/3);
                 points = horzcat(points,keep');
                 points=unique(points);
-
+                %now for the same point, jump in the intersheet direction
+                %and collect the points
+                intersheet_dir = -H_mesh.triORTHOfull(id_next,7:9);
+                for j=1:thickness_scar
+                    dummy_id_next = id_next;
+                next_point_intersheet = H_mesh.xyz(dummy_id_next,:)+intersheet_dir*width_intersheet;
+                id_next_intersheet=knnsearch(H_mesh.xyz,next_point_intersheet);
+                dists_intersheet = distance(H_mesh.xyz,H_mesh.xyz( id_next_intersheet,:));
+                points_intersheet = find(dists_intersheet <width_intersheet);
+                points =  horzcat(points,points_intersheet');
+                points =unique(points);
+                dummy_id_next = id_next_intersheet;
+                end
                   mid1_id=id_next;
                   mid1= H_mesh.xyz(id_next,:);
+                  
+                  %for each of the new points, take n_jumps in the
+                  %direction of the sheets and create spheres each time 
+               
+                  
              end
          
          elseif RV_mid ==1
@@ -304,13 +324,21 @@ RV_anterior=0;
               end
              
          end
-         
+                              no_lge= ones(size(H_mesh.xyz,1),1);
+                     no_lge(points)=density;
+
+%             
+ figure()
+ headlight
+ hold on
+ patch('vertices',H_mesh.xyz,'faces',H_mesh.face,'edgecolor','none','FaceVertexCData',no_lge,'facecolor','interp')
+ colorbar
+ axis off
+ view([-115 -56])
          
          %find the points closest yo you in the normal to fiber dir both
          %dirs) and add them to the list
-                    no_lge= ones(size(H_mesh.xyz,1),1);
 
-                     no_lge(points)=density;
 % 
 % 
 %                  figure()
@@ -320,23 +348,30 @@ RV_anterior=0;
 %                  colorbar
 %                  axis off
 %                  view([-115 -56])
-         for i=1:width%:5*width
+     %    for i=1:width%:5*width
              %take step in direction
-             new_coords_up = H_mesh.xyz(points,:) + i*fibers_normal(points,:)/50.0;
-             new_coords_down = H_mesh.xyz(points,:) - i*fibers_normal(points,:)/50.0;
-             new_ids_up=knnsearch(H_mesh.xyz,new_coords_up);        
-             new_ids_down=knnsearch(H_mesh.xyz,new_coords_down);  
-             points =[points,new_ids_up',new_ids_down'];
-             new_coords_up = [];
-                new_coords_down = [];
-                new_ids_up =[];
-                new_ids_down=[];
-         end
-         
+%              new_coords_up = H_mesh.xyz(points,:) + i*fibers_normal(points,:)/50.0;
+%              new_coords_down = H_mesh.xyz(points,:) - i*fibers_normal(points,:)/50.0;
+%              new_ids_up=knnsearch(H_mesh.xyz,new_coords_up);        
+%              new_ids_down=knnsearch(H_mesh.xyz,new_coords_down);  
+%              points =[points,new_ids_up',new_ids_down'];
+%              new_coords_up = [];
+%                 new_coords_down = [];
+%                 new_ids_up =[];
+%                 new_ids_down=[];
+%          end
+%          
         
-%   
 %            
-           no_lge= ones(size(H_mesh.xyz,1),1);
+% %             
+%  figure()
+%  headlight
+%  hold on
+%  patch('vertices',H_mesh.xyz,'faces',H_mesh.face,'edgecolor','none','FaceVertexCData',no_lge,'facecolor','interp')
+%  colorbar
+%  axis off
+%  view([-115 -56])
+%            
            
 %            dist_to_point = distance(mid1,H_mesh.xyz(border_ids,:));
            % dist_to_point_norm= dist_to_point/max(dist_to_point);
@@ -350,14 +385,14 @@ RV_anterior=0;
       
             
          
-%             
- figure()
- headlight
- hold on
- patch('vertices',H_mesh.xyz,'faces',H_mesh.face,'edgecolor','none','FaceVertexCData',no_lge,'facecolor','interp')
- colorbar
- axis off
- view([-115 -56])
+% %             
+%  figure()
+%  headlight
+%  hold on
+%  patch('vertices',H_mesh.xyz,'faces',H_mesh.face,'edgecolor','none','FaceVertexCData',no_lge,'facecolor','interp')
+%  colorbar
+%  axis off
+%  view([-115 -56])
 %             
 %            % light_lge(border_ids)=20*i;
 % 
@@ -376,7 +411,7 @@ RV_anterior=0;
         
            
            % dlmwrite(strcat(patient_sim_folder,'scalings\eikonal06_coarse_fib_',num2str(0),'.csv'), no_lge,'precision',10);
-           dlmwrite(strcat(patient_sim_folder,'scars_RV_inferior\scar_CV_slowing_factor',num2str(density),'_initial_length_',num2str(length),'_growth_factor_',num2str(width),'.csv'), no_lge,'precision',10);
+        %   dlmwrite(strcat(patient_sim_folder,'scars_RV_inferior\scar_CV_slowing_factor',num2str(density),'_initial_length_','1','_growth_factor_',sprintf('%.1f',double(width)),'.csv'), no_lge,'precision',10);
          %   dlmwrite(strcat(patient_sim_folder,'scalings\eikonal06_coarse_fib_',num2str(2),'_scar.csv'),  int_lge,'precision',10);
           %  dlmwrite(strcat(patient_sim_folder,'scalings\eikonal06_coarse_fib_',num2str(3),'_scar.csv'),  adv_lge,'precision',10);
            end
