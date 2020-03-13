@@ -51,15 +51,15 @@ H_mesh.face=vertcat(H_mesh.epi,H_mesh.lv,H_mesh.rv);
 
        
    
-       
+close all      
 RV_mid=0;
-RV_posterior=1;
+RV_posterior=0;
 RV_anterior=0;
-width=1/2;
-length=0.15; %1.5 for RV ant
-width_intersheet=1;
-thickness_scar=1;
-        for width_intersheet = [0.5,0.7,0.9]
+LV_mid=1;
+width=1.5;
+length=0.25; %1.5 for RV ant
+width_intersheet_factor=1.4;
+        for width_intersheet = [0.5,0.7,0.9]*width_intersheet_factor
         for j=6
             for density=2
                 %for t=1:8
@@ -86,16 +86,18 @@ thickness_scar=1;
                 x=-0.83;
                 y=-11.14;
                 z=-6.5;
-                
-                
+            elseif LV_mid==1
+                x=8.02;
+                y=-6.78;
+                z=-8.5;
             end
             
              ts_scaling_no_fib=ones(23,1);
 
                epi1= knnsearch(H_mesh.xyz(  H_mesh.epi,:),[x,y,z]);
-         endo1=knnsearch(H_mesh.xyz(H_mesh.rv,:),H_mesh.xyz(epi1,:));
+         endo1=knnsearch(H_mesh.xyz(H_mesh.lv,:),H_mesh.xyz(epi1,:));
          
-         mid1= (H_mesh.xyz(H_mesh.epi(epi1),:)+H_mesh.xyz(H_mesh.rv(endo1),:))/2;
+         mid1= (H_mesh.xyz(H_mesh.epi(epi1),:)+H_mesh.xyz(H_mesh.lv(endo1),:))/2;
          
          mid1_id= knnsearch(H_mesh.xyz,mid1);
          
@@ -119,8 +121,9 @@ thickness_scar=1;
                 %now for the same point, jump in the intersheet direction
                 %and collect the points
                 intersheet_dir = -H_mesh.triORTHOfull(id_next,7:9);
-                for j=1:thickness_scar
-                    dummy_id_next = id_next;
+                %I can add a parameter for a number of jumps in a given dir
+                %
+                dummy_id_next = id_next;
                 next_point_intersheet = H_mesh.xyz(dummy_id_next,:)+intersheet_dir*width_intersheet;
                 id_next_intersheet=knnsearch(H_mesh.xyz,next_point_intersheet);
                 dists_intersheet = distance(H_mesh.xyz,H_mesh.xyz( id_next_intersheet,:));
@@ -136,7 +139,7 @@ thickness_scar=1;
                   mid1= H_mesh.xyz(id_next,:);
                   
                 %find if there are any points in the LV
-                indices_on_lv_surface=find(no_lge(H_mesh.lv) >1);
+               % indices_on_lv_surface=find(no_lge(H_mesh.lv) >1);
                 %transform mesh to align it with z dir vertically
                 
                 
@@ -152,11 +155,11 @@ thickness_scar=1;
  patch('vertices',H_mesh.xyz,'faces',H_mesh.face,'edgecolor','none','FaceVertexCData',no_lge,'facecolor','interp')
  colorbar
  axis off
-   view([-125 -55])
+   view([130 6])
  axis equal
  axis off
  colorbar off             
-saveas(gcf,strcat('C:/Users/petnov/Dropbox/figures_repo/scar_intersheet_scar_CV_modulation_20%_RV_mid_size_',num2str(width_intersheet),'.png'))
+saveas(gcf,strcat('C:/Users/petnov/Dropbox/figures_repo/scar_intersheet_scar_CV_modulation_20%_LV_mid_size_',num2str(width_intersheet),'.png'))
            
             no_lge(points)=density;
             % no_lge(points)=i*dist_to_point_norm;
@@ -171,6 +174,9 @@ saveas(gcf,strcat('C:/Users/petnov/Dropbox/figures_repo/scar_intersheet_scar_CV_
                
             elseif RV_posterior==1
                 dlmwrite(strcat(patient_sim_folder,'scars_RV_inferior\scar_CV_slowing_factor',num2str(density),'_initial_length_','1','_growth_factor_',sprintf('%.1f',double(width_intersheet)),'.csv'), no_lge,'precision',10);
+            elseif LV_mid==1
+                dlmwrite(strcat(patient_sim_folder,'scars_LV_mid\scar_CV_slowing_factor',num2str(density),'_initial_length_','1','_growth_factor_',sprintf('%.1f',double(width_intersheet)),'.csv'), no_lge,'precision',10);
+                
             end
            
            % dlmwrite(strcat(patient_sim_folder,'scalings\eikonal06_coarse_fib_',num2str(0),'.csv'), no_lge,'precision',10);
@@ -179,7 +185,7 @@ saveas(gcf,strcat('C:/Users/petnov/Dropbox/figures_repo/scar_intersheet_scar_CV_
           %  dlmwrite(strcat(patient_sim_folder,'scalings\eikonal06_coarse_fib_',num2str(3),'_scar.csv'),  adv_lge,'precision',10);
            end
             end
-        end
+        
         
         
  figure()
@@ -197,10 +203,6 @@ saveas(gcf,strcat('C:/Users/petnov/Dropbox/figures_repo/scar_intersheet_scar_CV_
 
  
 
-
- figure()
- plot
- 
  xs=linspace(0,1,50);
  figure()
  plot(xs,y(xs,2),'LineWidth',3)
