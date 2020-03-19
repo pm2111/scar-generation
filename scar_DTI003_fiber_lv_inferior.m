@@ -55,11 +55,12 @@ close all
 RV_mid=0;
 RV_posterior=0;
 RV_anterior=0;
-LV_mid=1;
+LV_mid=0;
+LV_inferior=1;
 width=1.5;
 length=0.25; %1.5 for RV ant
-width_intersheet_factor=1.3;
-        for width_intersheet = [0.5,0.6,0.7]*width_intersheet_factor
+width_intersheet_factor=1.5;
+        for width_intersheet = [0.6,0.65,0.7]*width_intersheet_factor
         for j=6
             for density=2
                 %for t=1:8
@@ -90,6 +91,11 @@ width_intersheet_factor=1.3;
                 x=8.02;
                 y=-6.78;
                 z=-8.5;
+            elseif LV_inferior==1
+                x=6.35;
+                y=-5.2;
+                z=-9;
+                
             end
             
              ts_scaling_no_fib=ones(23,1);
@@ -155,11 +161,11 @@ width_intersheet_factor=1.3;
  patch('vertices',H_mesh.xyz,'faces',H_mesh.face,'edgecolor','none','FaceVertexCData',no_lge,'facecolor','interp')
  colorbar
  axis off
-   view([130 6])
+   view([-181 -41])
  axis equal
  axis off
  colorbar off             
-saveas(gcf,strcat('C:/Users/petnov/Dropbox/figures_repo/scar_intersheet_scar_CV_modulation_20%_LV_mid_size_',num2str(width_intersheet),'.png'))
+saveas(gcf,strcat('C:/Users/petnov/Dropbox/figures_repo/scar_intersheet_scar_CV_modulation_20%_LV_inferior_size_',num2str(width_intersheet),'.png'))
            
             no_lge(points)=density;
             % no_lge(points)=i*dist_to_point_norm;
@@ -176,7 +182,9 @@ saveas(gcf,strcat('C:/Users/petnov/Dropbox/figures_repo/scar_intersheet_scar_CV_
                 dlmwrite(strcat(patient_sim_folder,'scars_RV_inferior\scar_CV_slowing_factor',num2str(density),'_initial_length_','1','_growth_factor_',sprintf('%.1f',double(width_intersheet)),'.csv'), no_lge,'precision',10);
             elseif LV_mid==1
                 dlmwrite(strcat(patient_sim_folder,'scars_LV_mid\scar_CV_slowing_factor',num2str(density),'_initial_length_','1','_growth_factor_',sprintf('%.1f',double(width_intersheet)),'.csv'), no_lge,'precision',10);
-                
+             elseif LV_inferior==1
+                dlmwrite(strcat(patient_sim_folder,'scars_LV_inferior\scar_CV_slowing_factor',num2str(density),'_initial_length_','1','_growth_factor_',sprintf('%.1f',double(width_intersheet)),'.csv'), no_lge,'precision',10);
+                 
             end
            
            % dlmwrite(strcat(patient_sim_folder,'scalings\eikonal06_coarse_fib_',num2str(0),'.csv'), no_lge,'precision',10);
