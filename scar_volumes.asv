@@ -1,4 +1,4 @@
-
+function 
 addpath(genpath('C:\Users\petnov\Dropbox\shared - copy\'));
 addpath(genpath('C:\Users\petnov\Dropbox\mesh scripts'))
 addpath('C:\Users\petnov\Dropbox\shared - copy\MESHES\');
@@ -51,11 +51,18 @@ for i= 1:size(ids_scar)
     idx_scar=ids_scar(i);
     dummy=find(closest_point_to_tetra_centre==idx_scar);
     if isempty(dummy)==0
-        tetra_scar_ids=vertcat(tetra_scar_ids,dummy]; %id of the tetra centres
+        tetra_scar_ids=vertcat(tetra_scar_ids,dummy); %id of the tetra centres
     end
 end
 
+H_scar =struct;
+H_scar.xyz=H.xyz;
+H_scar.tri = H.tri(tetra_scar_ids,:);
 
-%sum( meshQuality( tetgen( MeshFillHoles( LV ) ) , 'volume' ) ) %alternative approach to compute the volumetric mesh is by filling the mesh completely with tetrahedra and computing the volume of each one
+figure()
+hplotMESH(MeshFillHoles( H_scar),'ne')
+headlight
 
-meshVolume( MeshFillHoles( EPI ) ) - meshVolume( MeshFillHoles( LV ) ) - meshVolume( MeshFillHoles( RV ) ) %different way of getting the muscle mass of both ventricles
+meshVolume(MeshFillHoles(H_scar));
+
+

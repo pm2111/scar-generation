@@ -1,4 +1,8 @@
-
+function [scarVolumeFraction]=scar_volumes_fcn(location)
+%location is the name of the folder containing the scars for a specific
+%location
+%ventricle is a double, either 1 if the scar is in the LV or other if the
+%RV. The septum is assumed to be part of the LV.
 addpath(genpath('C:\Users\petnov\Dropbox\shared - copy\'));
 addpath(genpath('C:\Users\petnov\Dropbox\mesh scripts'))
 addpath('C:\Users\petnov\Dropbox\shared - copy\MESHES\');
@@ -21,26 +25,27 @@ H.tricentres=csvread('D:\ARVC meshing automatic\patients\DTI003\DTI003_mesh\DTI0
 
 H.face=vertcat(H.epi,H.lv,H.rv);
   H.xyz=H.xyz;
-
-names =dir(strcat(patient_sim_folder,'scars_LV_anterior\'));
-scar = dlmread(strcat(patient_sim_folder,'scars_LV_anterior\',names(3).name));               
-
 [EPI,LV,RV,LID,MAT] = HEARTparts( H ); %separate into epicardial, left, right,
-%lid (cover of ventricles) surfaces and the transformation matrix
 
+  
+names =dir(strcat(patient_sim_folder,location,'\'));
 figure()
-plotMESH( transform( EPI , MAT ) ,'ne'); headlight %use the transform tool to bring the mesh to the normalised orientation (facing upwards rel to the xy plane)
-hplotMESH( transform( LV  , MAT ) ,'r','ne'); 
-hplotMESH( transform( RV  , MAT ) ,'g','ne'); 
-hplotMESH( transform( LID , MAT ) ,'c','ne'); 
+for j=1:size(names,1)-2
+scar = dlmread(strcat(patient_sim_folder,location,'\',names(2+j).name));               
+
+%lid (cover of ventricles) surfaces and the transformation matrix
+% 
+% figure()
+% plotMESH( transform( EPI , MAT ) ,'ne'); headlight %use the transform tool to bring the mesh to the normalised orientation (facing upwards rel to the xy plane)
+% hplotMESH( transform( LV  , MAT ) ,'r','ne'); 
+% hplotMESH( transform( RV  , MAT ) ,'g','ne'); 
+% hplotMESH( transform( LID , MAT ) ,'c','ne'); 
+% 
+% 
+% plotMESH( MeshFillHoles( LV ) ,'ne' ); headlight %in order to use Gauss' formula to compute volumes, we need to fill any holes left
 
 
-plotMESH( MeshFillHoles( LV ) ,'ne' ); headlight %in order to use Gauss' formula to compute volumes, we need to fill any holes left
-
-
-muscle_LV=meshVolume( MeshFillHoles( LV ) ) %use gauss' thm to compute the mesh volume (NB all normals must point in the same direction)
-muscle_RV=meshVolume( MeshFillHoles( RV ) ) %use gauss' thm to compute the mesh volume (NB all normals must point in the same direction)
-
+total_muscle_mass=sum( meshQuality( MeshFillHoles( H ) , 'volume' ) ); %compute the mesh volume by summing the volumes of each tetrahedron in the mesh
 %extract mesh of scar
 %find tetra which are made up entirely of points from the scar region
 ids_scar=find(scar>1);
@@ -59,10 +64,9 @@ H_scar =struct;
 H_scar.xyz=H.xyz;
 H_scar.tri = H.tri(tetra_scar_ids,:);
 
-figure()
 hplotMESH(MeshFillHoles( H_scar),'ne')
 headlight
+scarVolumeFraction(j)= sum( meshQuality( MeshFillHoles( H_scar ) , 'volume' ) )*100/total_muscle_mass;
 
-meshVolume(MeshFillHoles(H_scar));
-
-
+end
+end

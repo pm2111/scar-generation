@@ -53,8 +53,8 @@ H_mesh.face=vertcat(H_mesh.epi,H_mesh.lv,H_mesh.rv);
    
        
 RV_mid=0;
-RV_posterior=1;
-RV_anterior=0;
+RV_posterior=0;
+RV_anterior=1;
 width=1/2;
 length=0.15; %1.5 for RV ant
 width_intersheet=1;
@@ -136,6 +136,8 @@ thickness_scar=1;
                   mid1= H_mesh.xyz(id_next,:);
                   
                 %find if there are any points in the LV
+                no_lge= ones(size(H_mesh.xyz,1),1);
+
                 indices_on_lv_surface=find(no_lge(H_mesh.lv) >1);
                 %transform mesh to align it with z dir vertically
                 
@@ -156,7 +158,6 @@ thickness_scar=1;
  axis equal
  axis off
  colorbar off             
-saveas(gcf,strcat('C:/Users/petnov/Dropbox/figures_repo/scar_intersheet_scar_CV_modulation_20%_RV_mid_size_',num2str(width_intersheet),'.png'))
            
             no_lge(points)=density;
             % no_lge(points)=i*dist_to_point_norm;
@@ -165,12 +166,16 @@ saveas(gcf,strcat('C:/Users/petnov/Dropbox/figures_repo/scar_intersheet_scar_CV_
             
       
             if RV_anterior==1
-               dlmwrite(strcat(patient_sim_folder,'scars_RV_anterior\scar_CV_slowing_factor',num2str(density),'_initial_length_','1','_growth_factor_',sprintf('%.1f',double(width_intersheet)),'.csv'), no_lge,'precision',10);
+                saveas(gcf,strcat('C:/Users/petnov/Dropbox/figures_repo/scars_RV_anterior/scar_intersheet_scar_CV_modulation_20%_RV_mid_size_',num2str(width_intersheet),'.png'))
+               %dlmwrite(strcat(patient_sim_folder,'scars_RV_anterior\scar_CV_slowing_factor',num2str(density),'_initial_length_','1','_growth_factor_',sprintf('%.1f',double(width_intersheet)),'.csv'), no_lge,'precision',10);
             elseif RV_mid==1
-                dlmwrite(strcat(patient_sim_folder,'scars_RV_mid\scar_CV_slowing_factor',num2str(density),'_initial_length_','1','_growth_factor_',sprintf('%.1f',double(width_intersheet)),'.csv'), no_lge,'precision',10);
+                saveas(gcf,strcat('C:/Users/petnov/Dropbox/figures_repo/scars_RV_mid/scar_intersheet_scar_CV_modulation_20%_RV_mid_size_',num2str(width_intersheet),'.png'))
+
+               % dlmwrite(strcat(patient_sim_folder,'scars_RV_mid\scar_CV_slowing_factor',num2str(density),'_initial_length_','1','_growth_factor_',sprintf('%.1f',double(width_intersheet)),'.csv'), no_lge,'precision',10);
                
             elseif RV_posterior==1
-                dlmwrite(strcat(patient_sim_folder,'scars_RV_inferior\scar_CV_slowing_factor',num2str(density),'_initial_length_','1','_growth_factor_',sprintf('%.1f',double(width_intersheet)),'.csv'), no_lge,'precision',10);
+                 saveas(gcf,strcat('C:/Users/petnov/Dropbox/figures_repo/scars_RV_posterior/scar_intersheet_scar_CV_modulation_20%_RV_mid_size_',num2str(width_intersheet),'.png'))
+              %  dlmwrite(strcat(patient_sim_folder,'scars_RV_inferior\scar_CV_slowing_factor',num2str(density),'_initial_length_','1','_growth_factor_',sprintf('%.1f',double(width_intersheet)),'.csv'), no_lge,'precision',10);
             end
            
            % dlmwrite(strcat(patient_sim_folder,'scalings\eikonal06_coarse_fib_',num2str(0),'.csv'), no_lge,'precision',10);
