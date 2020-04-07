@@ -183,7 +183,7 @@ saveas(gcf,strcat('C:/Users/petnov/Dropbox/figures_repo/scar_intersheet_scar_CV_
             elseif LV_mid==1
                 dlmwrite(strcat(patient_sim_folder,'scars_LV_mid\scar_CV_slowing_factor',num2str(density),'_initial_length_','1','_growth_factor_',sprintf('%.1f',double(width_intersheet)),'.csv'), no_lge,'precision',10);
              elseif LV_inferior==1
-                dlmwrite(strcat(patient_sim_folder,'scars_LV_inferior\scar_CV_slowing_factor',num2str(density),'_initial_length_','1','_growth_factor_',sprintf('%.1f',double(width_intersheet)),'.csv'), no_lge,'precision',10);
+                dlmwrite(strcat(patient_sim_folder,'scars_LV_inferior\scar_CV_slowing_factor',num2str(density),'_initial_length_','1','_growth_factor_',sprintf('%.2f',double(width_intersheet)),'.csv'), no_lge,'precision',10);
                  
             end
            
@@ -195,13 +195,7 @@ saveas(gcf,strcat('C:/Users/petnov/Dropbox/figures_repo/scar_intersheet_scar_CV_
             end
         
         
-        
- figure()
- headlight
- hold on
- patch('vertices',H_mesh.xyz,'faces',H_mesh.face,'edgecolor','none','FaceVertexCData',no_lge,'facecolor','interp')
- colorbar
- axis off
+      
  
  H_meshvtk=struct;
  H_meshvtk.xyz = H_mesh.xyz;
@@ -209,35 +203,35 @@ saveas(gcf,strcat('C:/Users/petnov/Dropbox/figures_repo/scar_intersheet_scar_CV_
  H_meshvtk.xyzFibers = H_mesh.triORTHO(:,1:3);
  write_VTK(H_meshvtk,'D:/ARVC meshing automatic/patients/DTI003/DTI003.vtk');
 
- 
-
- xs=linspace(0,1,50);
- figure()
- plot(xs,y(xs,2),'LineWidth',3)
- hold on
-  plot(xs,y(xs,4),'LineWidth',3)
- plot(xs,y(xs,8),'LineWidth',3)
- legend({'typical ACM scar','pronounced ACM scar', 'severe ACM scar'},'Fontsize',35)
- xlabel('normalised distance from middle of scar to border','Fontsize',35)
- ylabel('conduction scaling factor','Fontsize',35)
- set(gca,'Fontsize',25)
- 
- 
- 
- 
- 
- scar_old_long=load('D:/ARVC meshing automatic/patients/patient06/scalings/eikonal06_coarse_fib_0_scar_along_fiber_slowing_4_length_10_radius_9.csv');
- 
- positions=load('D:/ARVC meshing automatic/patients/patient06/mpp/ECG_ELECTRODES.mat');
- 
- pos2=load('D:/ARVC meshing automatic/patients/patient06/DTI003_electrodePositions.csv');
- 
- 
- 
- figure()
- headlight
- hold on
- patch('vertices',H_mesh.xyz,'faces',H_mesh.face,'edgecolor','none','FaceVertexCData',scar_old_long,'facecolor','interp')
- colorbar
-
-       
+%  
+% 
+%  xs=linspace(0,1,50);
+%  figure()
+%  plot(xs,y(xs,2),'LineWidth',3)
+%  hold on
+%   plot(xs,y(xs,4),'LineWidth',3)
+%  plot(xs,y(xs,8),'LineWidth',3)
+%  legend({'typical ACM scar','pronounced ACM scar', 'severe ACM scar'},'Fontsize',35)
+%  xlabel('normalised distance from middle of scar to border','Fontsize',35)
+%  ylabel('conduction scaling factor','Fontsize',35)
+%  set(gca,'Fontsize',25)
+%  
+%  
+%  
+%  
+%  
+%  scar_old_long=load('D:/ARVC meshing automatic/patients/patient06/scalings/eikonal06_coarse_fib_0_scar_along_fiber_slowing_4_length_10_radius_9.csv');
+%  
+%  positions=load('D:/ARVC meshing automatic/patients/patient06/mpp/ECG_ELECTRODES.mat');
+%  
+%  pos2=load('D:/ARVC meshing automatic/patients/patient06/DTI003_electrodePositions.csv');
+%  
+%  
+%  
+%  figure()
+%  headlight
+%  hold on
+%  patch('vertices',H_mesh.xyz,'faces',H_mesh.face,'edgecolor','none','FaceVertexCData',scar_old_long,'facecolor','interp')
+%  colorbar
+% 
+%        

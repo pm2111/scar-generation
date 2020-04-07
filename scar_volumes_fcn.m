@@ -29,10 +29,14 @@ H.face=vertcat(H.epi,H.lv,H.rv);
 
   
 names =dir(strcat(patient_sim_folder,location,'\'));
+    if isempty(names)==1
+        scarVolumeFraction =0;
+        return 
+    end
 figure()
 for j=1:size(names,1)-2
 scar = dlmread(strcat(patient_sim_folder,location,'\',names(2+j).name));               
-
+   
 %lid (cover of ventricles) surfaces and the transformation matrix
 % 
 % figure()

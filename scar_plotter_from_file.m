@@ -29,10 +29,10 @@ for i=3:size(names,1)
  patch('vertices',H_mesh.xyz,'faces',H_mesh.face,'edgecolor','none','FaceVertexCData',no_lge,'facecolor','interp')
  colorbar
  axis off
-   view([77 67])
+   view([139 14])
  axis equal
  axis off
  colorbar off   
   headlight
-saveas(gcf,strcat('C:\Users\petnov\Dropbox\figures_repo\figures_paperII\scars_LV_anterior\',names(i).name,'.png'))
+saveas(gcf,strcat('C:\Users\petnov\Dropbox\figures_repo\figures_paperII\scars_LV_inferior\',names(i).name,'.png'))
 end
